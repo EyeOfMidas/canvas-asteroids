@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<style type="text/css">
+			html, body {
+				margin: 0;
+				padding: 0;
+			}
+			canvas {
+				width: 100%;
+				height: 100vh;
+				display: block;
+			}
+		</style>
+	</head>
+	<body>
+		<canvas id="asteroids"></canvas>
+		<script src="./keycode.js"></script>
+		<script src="./rAF.js"></script>
+		<script>
+			document.addEventListener("DOMContentLoaded", event => {
+				init();
+				animate();
+			});
+
+			window.addEventListener("resize", resize);
+			window.addEventListener("keydown", onKeyDown);
+			window.addEventListener("keyup", onKeyUp);
+
+			var canvas;
+			var context;
+			var animId;
+			var keys = [];
+
+			var starsNear = [];
+			var starsFar = [];
+
+			var ship = {
+				x: 0,
+				y: 0,
+				angle: 90,
+				acceleration: {x: 0, y: 0},
+				velocity: {x: 0, y: 0},
+				width: 10,
+				height: 15,
+				rotationSpeed: 3,
+				thrust: 0.2,
+				bulletSpeed: 2,
+				life: 3,
+				score: 0,
+			};
+
+			var bullets = [];
+			var shootDelay = 0;
+			var asteroids = [];
+
+			function init() {
+				canvas = document.getElementById("asteroids");
+				context = canvas.getContext('2d');
+
+				for(let i = 0; i < 256; i++) {
+					keys[i] = false;
+				}
+
+				resize();
+
+				//initialize the game objects here
+			}
+
+			function resize() {
+				let dpi = window.devicePixelRatio;
+				canvas.width = canvas.clientWidth;
+				canvas.height = canvas.clientHeight;
+				context.width = canvas.clientWidth / dpi;
+				context.height = canvas.clientHeight / dpi;
+			}
+
+			function animate() {
+				update();
+				context.save();
+				context.translate(0.5, 0.5);
+				clearFrame(context);
+				draw(context);
+				context.restore();
+				animId = requestAnimationFrame(animate, canvas);
+			}
+
+			function clearFrame(context) {
+				context.fillStyle = "#000000";
+				context.beginPath();
+				context.rect(0,0, canvas.width, canvas.height);
+				context.fill();
+			}
+
+			function update() {
+				//update the game objects here
+			}
+
+			function draw(context) {
+				//draw the game objects here
+			}
+
+			function doesCollide(mobile1, mobile2) {
+				let distance = Math.sqrt(
+					Math.pow(mobile1.x - mobile2.x, 2) + 
+					Math.pow(mobile1.y - mobile2.y, 2)
+					)
+				return mobile2.width / 2 >= distance - mobile1.width / 2;
+			}
+
+			function wrapAround(mobile) {
+				if(mobile.x - mobile.width / 2 > canvas.width) { // too far right
+				mobile.x = -mobile.width / 2;
+				} else if(mobile.x + mobile.width / 2 <= 0) { // too far left
+					mobile.x = canvas.width + mobile.width / 2;
+				}
+
+				if(mobile.y - mobile.height / 2 > canvas.height) { // too far down
+					mobile.y = -mobile.height / 2;
+				} else if(mobile.y + mobile.height / 2 <= 0) { // too far up
+					mobile.y = canvas.height + mobile.height / 2;
+				}
+			}
+
+			function onKeyDown(event) {
+				keys[event.keyCode] = true;
+			}
+
+			function onKeyUp(event) {
+				keys[event.keyCode] = false;
+			}
+
+		</script>
+	</body>
+</html>
