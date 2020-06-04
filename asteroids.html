@@ -439,12 +439,12 @@
 
             ship.score += asteroid.width * 10;
 
-            if (asteroids.length == 0) {
-                alert(`You win! Score: ${ship.score}`);
-                init();
-                return;
-            }
+
             if (asteroid.width <= 25) {
+                if (asteroids.length == 0) {
+                    alert(`You win! Score: ${ship.score}`);
+                    init();
+                }
                 return;
             }
             let velocityVariation = {};
