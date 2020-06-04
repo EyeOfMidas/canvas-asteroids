@@ -117,6 +117,8 @@
             drawAsteroids(context);
             drawShip(context);
             drawBullets(context);
+
+            drawUI(context);
         }
 
         function rand(min, max) {
@@ -270,6 +272,7 @@
         }
 
         function drawAsteroids(context) {
+            context.strokeStyle = "lightgray";
             context.fillStyle = "gray";
             for (let i = 0; i < asteroids.length; i++) {
                 let asteroid = asteroids[i];
@@ -278,6 +281,7 @@
                 context.beginPath();
                 context.arc(0, 0, asteroid.width / 2, 0, 2 * Math.PI);
                 context.fill();
+                context.stroke();
                 context.restore();
             }
         }
@@ -355,6 +359,7 @@
             context.beginPath();
             shipShape(context);
             context.fill();
+            context.stroke();
             context.restore();
         }
 
@@ -422,7 +427,7 @@
             let asteroidIndex = asteroids.indexOf(asteroid);
             asteroids.splice(asteroidIndex, 1);
 
-            ship.score += asteroid.width * 100;
+            ship.score += asteroid.width * 10;
 
             if (asteroids.length == 0) {
                 alert(`You win! Score: ${ship.score}`);
@@ -437,6 +442,8 @@
             velocityVariation.y = asteroid.velocity.y + rand(-1, 2);
             let newSize = { width: asteroid.width / 2, height: asteroid.height / 2 };
             asteroids.push(createAsteroid(asteroid, velocityVariation, newSize));
+            velocityVariation.x = asteroid.velocity.x + rand(-1, 2);
+            velocityVariation.y = asteroid.velocity.y + rand(-1, 2);
             asteroids.push(createAsteroid(asteroid, velocityVariation, newSize));
         }
 
@@ -454,6 +461,14 @@
             ship.acceleration.x = 0;
             ship.acceleration.y = 0;
             keys[KeyCode.Up] = false;
+        }
+
+        function drawUI(context) {
+            context.font = "30px Arial";
+            context.textAlign = "left";
+            context.fillText(`Lives: ${ship.life}`, 10, 50);
+            context.textAlign = "right";
+            context.fillText(`Score: ${ship.score}`, canvas.width - 10, 50);
         }
     </script>
 </body>
