@@ -360,6 +360,16 @@
             shipShape(context);
             context.fill();
             context.stroke();
+
+            if (keys[KeyCode.Up]) {
+                context.fillStyle = "orange"
+                context.beginPath();
+                context.moveTo(-ship.width / 4, -ship.height / 2);
+                context.lineTo(ship.width / 4, -ship.height / 2);
+                context.lineTo(0, -1.2 * ship.height);
+                context.lineTo(-ship.width / 4, -ship.height / 2);
+                context.fill();
+            }
             context.restore();
         }
 
