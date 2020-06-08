@@ -132,6 +132,13 @@
             context.lineTo(ship.width / 2, -ship.height / 2);
         }
 
+        function shipThrustShape(context) {
+            context.moveTo(-ship.width / 4, -ship.height / 2);
+            context.lineTo(ship.width / 4, -ship.height / 2);
+            context.lineTo(0, -1.2 * ship.height);
+            context.lineTo(-ship.width / 4, -ship.height / 2);
+        }
+
         function onKeyDown(event) {
             keys[event.keyCode] = true;
         }
