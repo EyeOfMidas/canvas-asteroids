@@ -160,6 +160,7 @@
             //initialize the game objects here
             initStars();
             initShip();
+            initAsteroids();
         }
 
         function initStars() {
@@ -311,16 +312,27 @@
             context.restore();
         }
 
+        function initAsteroids() {
+        }
+
+        function updateAsteroids() {
+        }
+
+        function drawAsteroids(context) {
+        }
+
         function update() {
             //update the game objects here
             updateStars();
             updateShip();
+            updateAsteroids();
         }
 
         function draw(context) {
             //draw the game objects here
             drawStars(context);
             drawShip(context);
+            drawAsteroids(context);
         }
 
 
