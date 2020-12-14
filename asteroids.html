@@ -390,7 +390,13 @@
                 bullet.x += bullet.velocity.x;
                 bullet.y += bullet.velocity.y;
                 wrapAround(bullet);
+
+                // bullets age one each update loop
+                bullet.lifespan--;
             }
+
+            // this returns an array of only bullets with valid lifespan values
+            bullets = bullets.filter(bullet => bullet.lifespan > 0);
         }
 
         function drawBullets(context) {
@@ -420,7 +426,7 @@
             // but also inherit the ship's velocity too.
             bullet.velocity.x = ship.bulletSpeed * anglePosition.x + ship.velocity.x;
             bullet.velocity.y = ship.bulletSpeed * anglePosition.y + ship.velocity.y;
-
+            bullet.lifespan = 75;
             bullets.push(bullet);
         }
 
