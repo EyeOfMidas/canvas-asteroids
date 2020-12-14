@@ -296,7 +296,16 @@
         }
 
         function hitShip(asteroid) {
-
+            // move to a new random location (hopefully not somewhere an asteroid already is)
+            ship.x = rand(0, canvas.width);
+            ship.y = rand(0, canvas.height);
+            // quit moving the ship
+            ship.velocity.x = 0;
+            ship.velocity.y = 0;
+            ship.acceleration.x = 0;
+            ship.acceleration.y = 0;
+            // if the user is still holding up, clear that key
+            keys[KeyCode.Up] = false;
         }
 
         function drawShip(context) {
