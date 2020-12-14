@@ -198,6 +198,36 @@ This will detect if the left or right arrow keys are pressed, and change the `an
         ...
     }
 
+Neat! The ship will turn around. We'll need to add some thrust and space physics to really make this feel like a space ship though. Typical physics rules in 2D games use acceleration to affect velocity, and velocity to affect position.
+
+At the top of the `updateShip` function, let's zero-out the ship acceleration each update loop.
+
+    ship.acceleration.x = 0;
+    ship.acceleration.y = 0;
+
+and right below that, let's add a key listener for up, to apply accleration (thrust) in the direction the ship is facing.
+
+    if (keys[KeyCode.Up]) {
+        // the getShipAnglePosition uses sin and cos to determine which way the ship is facing
+        let position = getShipAnglePosition();
+
+        //then we apply the maximum thrust value to those values to move the ship in that direction
+        ship.acceleration.x = ship.thrust * position.x;
+        ship.acceleration.y = ship.thrust * position.y;
+    }
+
+Now that we've turned on directional accleration, all that's left to do is to apply it to the velocity and the position. Below the turning logic, add the following calculations:
+
+    ship.velocity.x += ship.acceleration.x;
+    ship.velocity.y += ship.acceleration.y;
+
+    ship.x += ship.velocity.x;
+    ship.y += ship.velocity.y;
+
+And since we want the ship to stay where we can see it, use the `wrapAround` function that we used for the stars as well.
+
+        wrapAround(ship); // don't get lost in space!
+    }
 
 ## Thrust Tail
 
