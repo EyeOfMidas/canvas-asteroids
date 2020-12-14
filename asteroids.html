@@ -257,6 +257,13 @@
         }
 
         function updateShip() {
+            if (keys[KeyCode.Left]) {
+                ship.angle -= ship.rotationSpeed;
+            }
+
+            if (keys[KeyCode.Right]) {
+                ship.angle += ship.rotationSpeed;
+            }
         }
 
         function drawShip(context) {
@@ -265,7 +272,7 @@
             context.strokeStyle = "red";
             context.fillStyle = "crimson";
             context.translate(ship.x, ship.y);
-
+            context.rotate((ship.angle - 90) * (Math.PI / 180)); // this will rotate the entire context around the ship.position
             context.beginPath();
             shipShape(context); // this is just a convenient function for drawing a triangle
             context.fill();
