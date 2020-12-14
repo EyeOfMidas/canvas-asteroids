@@ -47,8 +47,8 @@
             angle: -90,
             acceleration: { x: 0, y: 0 },
             velocity: { x: 0, y: 0 },
-            width: 10,
-            height: 15,
+            width: 15,
+            height: 20,
             rotationSpeed: 3,
             thrust: 0.2,
             bulletSpeed: 2,
@@ -243,8 +243,8 @@
                 angle: -90,
                 acceleration: { x: 0, y: 0 },
                 velocity: { x: 0, y: 0 },
-                width: 10,
-                height: 15,
+                width: 15,
+                height: 20,
                 rotationSpeed: 3,
                 thrust: 0.2,
                 bulletSpeed: 2,
@@ -252,6 +252,8 @@
                 score: 0,
             };
 
+            ship.x = canvas.width / 2;
+            ship.y = canvas.height / 2;
         }
 
         function updateShip() {
