@@ -311,6 +311,36 @@ At this point, you should have two asteroids drifting randomly across your starf
 
 ## Collisions
 
+But what good are giant rocks if you can't crash into them? We can use a really simple formula to simulate collision logic.
+In the file there's already a function called `doesCollide()` that uses the distance formula to determine if two objects are too close to each other. This isn't nearly as accurate as a full physics engine since it treats all objects like circles, but... all of the objects we can crash into are circles!
+
+Inside the updateShip function, after we manipulate the ship and wrap it to the screen, add a loop that checks over all the asteroids and determines if the ship is intersecting them.
+
+    for (let j = 0; j < asteroids.length; j++) {
+        let asteroid = asteroids[j];
+        if (doesCollide(ship, asteroid)) {
+             // crash into this asteroid!
+            break;
+        }
+    }
+
+But what do we want to do? Create a function called `hitShip(asteroid)` and call it from inside our collision loop (where we have the comment _ // crash into this asteroid!_). Inside of `hitShip` we should do a few things; first, we should pick a new position for the ship to spawn, set the velocity and acceleration to 0, and force the thrust key to no longer trigger.
+
+    function hitShip(asteroid) {
+        // move to a new random location (hopefully not somewhere an asteroid already is)
+        ship.x = rand(0, canvas.width);
+        ship.y = rand(0, canvas.height);
+        // quit moving the ship
+        ship.velocity.x = 0;
+        ship.velocity.y = 0;
+        ship.acceleration.x = 0;
+        ship.acceleration.y = 0;
+        // if the user is still holding up, clear that key
+        keys[KeyCode.Up] = false;
+    }
+
+Now when the ship touches an asteroid, it will vanish and appear somewhere else!
+
 ## Bullets
 
 ## Bullet Collisions
