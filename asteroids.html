@@ -162,7 +162,18 @@
         }
 
         function initStars() {
-
+            starsNear = [];
+            for (let i = 0; i < 50; i++) {
+                let star = {};
+                //This function picks a random coordinate within the bounds of the window
+                let randomPosition = getRandomPositionOnScreen();
+                star.x = randomPosition.x;
+                star.y = randomPosition.y;
+                //stars are circles, so their width and height are the same size
+                star.width = rand(2, 4);
+                star.height = star.width;
+                starsNear.push(star);
+            }
         }
 
         function updateStars() {
@@ -170,7 +181,22 @@
         }
 
         function drawStars(context) {
-
+            //this will be the color of all the stars
+            context.fillStyle = "lightgray";
+            for (let i = 0; i < starsNear.length; i++) {
+                let star = starsNear[i];
+                //saving and restoring the context like this allows us to draw 0,0 centered images, which makes later transformations easier.
+                context.save();
+                //moves the canvas matrix to be centered on the star's screen position
+                context.translate(star.x, star.y);
+                //star drawing a vector shape
+                context.beginPath();
+                //plots out a cirle at 0,0: (x, y, radius, startAngle, endAngle)
+                context.arc(0, 0, star.width / 2, 0, 2 * Math.PI);
+                //draws the shape as a filled, lightgray circle
+                context.fill();
+                context.restore();
+            }
         }
 
         function update() {
