@@ -393,6 +393,50 @@ Drawing bullets is almost identical to how we draw stars:
         }
     }
 
+Playing the game at this point will reveal three important facts. We have no rate limit to how quickly bullets can spawn (you make one bullet per frame drawn when holding spacebar), bullets last forever on screen, and none of the bullets are moving!
+
+Let's get the bullets moving first by updating them inside the `updateBullets` function. Bullets will also use the same physics logic that asteroids do, to drift around.
+
+    function updateBullets() {
+        for (let i = 0; i < bullets.length; i++) {
+            let bullet = bullets[i];
+            bullet.x += bullet.velocity.x;
+            bullet.y += bullet.velocity.y;
+            wrapAround(bullet);
+        }
+    }
+
+This is really neat, actually; bullets spawn infinitely and last forever, so if you spend a few minutes playing your screen will end up a hailstorm of random bullets. Let's add a lifetime so they go away after a few ticks.
+
+When we `addBullet` let's give the bullet a lifetime value as well.
+
+    bullet.lifespan = 75;
+
+In the `updateBullets` function, deduct 1 from each bullets' lifespan when we update them.
+
+    bullet.lifespan--;
+
+After we have updated all the bullets (outside the for loop), we'll have to go through the bullets array and filter out any bullets that have a lifespan less than or equal to 0.
+
+    bullets = bullets.filter(bullet => bullet.lifespan > 0);
+
+Now when we try it out, the bullets still spawn very quickly, but will vanish shortly. Let's slow down the rate that we add bullets, and add a shoot delay. Inside `addBullet` set the `shootDelay` variable to a reasonable number.
+
+    shootDelay = 15;
+
+Now when we spawn the bullets, we need to check if we are within the delay time (just like how we do the lifespan for bullets) and only add a bullet when we've waited long enough.
+
+    ...
+    shootDelay--;
+    if (keys[KeyCode.Space]) {
+        if (shootDelay <= 0) {
+            addBullet();
+        }
+    }
+    ...
+
+Don't forget to deduct 1 from the shoot delay each update loop, or you'll only be able to shoot one bullet ever!
+
 ## Bullet Collisions
 
 ## Asteroid Splitting
