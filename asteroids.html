@@ -190,7 +190,20 @@
         }
 
         function updateStars() {
+            for (let i = 0; i < starsNear.length; i++) {
+                let star = starsNear[i];
+                star.x += 0.15; //these stars a closer so they'll appear to move faster
+                star.y += 0.15;
+                //this function checks the position against the width/height and will wrap the objects around the screen.
+                wrapAround(star);
+            }
 
+            for (let i = 0; i < starsFar.length; i++) {
+                let star = starsFar[i];
+                star.x += 0.05; //far-away stars will move much more slowly
+                star.y += 0.05;
+                wrapAround(star);
+            }
         }
 
         function drawStars(context) {
