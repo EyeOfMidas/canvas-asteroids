@@ -388,6 +388,16 @@
         }
 
         function drawBullets(context) {
+            context.fillStyle = "white";
+            for (let i = 0; i < bullets.length; i++) {
+                let bullet = bullets[i];
+                context.save();
+                context.translate(bullet.x, bullet.y);
+                context.beginPath();
+                context.arc(0, 0, bullet.width / 2, 0, 2 * Math.PI);
+                context.fill();
+                context.restore();
+            }
         }
 
         function addBullet() {
