@@ -38,9 +38,9 @@ Draw takes in the canvas context object, and is called once per frame to draw th
 
 ## Starfield
 We can't have an asteroids game without setting it in space! So let's draw some random stars on the screen. Create three new functions:
-initStars()
-updateStars()
-drawStars(context)
+* `initStars()`
+* `updateStars()`
+* `drawStars(context)`
 
 and call them in their respective game-loop functions. (For clarity, put `initStars()` at the bottom of the `init()` function, etc).
 
@@ -112,7 +112,92 @@ Inside the updateStars() function, put in two for loops, one for starsNear and s
 
 ## Ship
 
+The ship is set up and drawn the same way as the stars are, but there's only one. First, create 3 new functions:
+* `initShip()`
+* `updateShip()`
+* `drawShip(context)`
+
+and call them in their respective game-loop functions. (For clarity, put `initShip()` at the bottom of the `init()` function, etc).
+
+First, set up the ship with it's default values. There is already a `ship` object defined, so go ahead and copy the initialization and also put it in the `initShip()` function.
+
+    function initShip() {
+        ship = { 
+            x: 0,
+            y: 0,
+            angle: -90,
+            acceleration: { x: 0, y: 0 },
+            velocity: { x: 0, y: 0 },
+            width: 10,
+            height: 15,
+            rotationSpeed: 3,
+            thrust: 0.2,
+            bulletSpeed: 2,
+            life: 3,
+            score: 0,
+        };
+    }
+
+To draw the ship as a triangle, I created a convenient function called `shipShape` that will draw it nicely. Just like drawing the stars, we're going to translate to the ship position, and draw everything centered at 0,0 to make things like rotations easy to calculate.
+
+    function drawShip(context) {
+        context.save();
+        // the styleshere are css color values: try putting any HEX code, rgb() or color word here!
+        context.strokeStyle = "red";
+        context.fillStyle = "crimson";
+        context.translate(ship.x, ship.y);
+
+        context.beginPath();
+        shipShape(context); // this is just a convenient function for drawing a triangle
+        context.fill();
+        context.stroke();
+
+        context.restore();
+    }
+
+Now you should be drawing a neat red triangle ship out in space! ... way off in the corner. Let's tweak some of the initial values of the ship so it starts in the center of the screen. Inside the `initShip` function, add the following lines:
+
+    ship.x = canvas.width / 2;
+    ship.y = canvas.height / 2;
+
+This will set the ship starting position to be the center of the viewable window, however big it might be.
+
+The ship seems a little small, so we can adjust the width and height here too, and the `shipShape` function will take care of drawing the properly sized triangle. Let's change the width to 15 and the height to 20, so the ship is a bit bigger.
+
+    ship = {
+        ...
+        width: 15,
+        height: 20,
+        ...
+    }
+
+
 ## Movement
+
+This is a pretty spiffy triangle, but it would be a lot cooler if we could make it move around in space. I've added a few _event listeners_ to handle the details, but essentially I'm setting up an array of keys and keeping track of if they're pressed or not. We can use the `keys` array in the update loop to check if a key is currently held down, and make the ship do things based on that.
+
+Let's add in some turning, first. Inside `updateShip()` add the following two `if` checks:
+
+    function updateShip() {
+        if (keys[KeyCode.Left]) {
+            ship.angle -= ship.rotationSpeed;
+        }
+
+        if (keys[KeyCode.Right]) {
+            ship.angle += ship.rotationSpeed;
+        }
+    }
+
+This will detect if the left or right arrow keys are pressed, and change the `angle` on the ship by a small amount. But we'll need to change the way we draw the ship to reflect the proper rotation. Inside `drawShip`, after the `context.translate` but before we `beginPath` you'll need to add a context rotation.
+
+    function drawShip(context) {
+        ...
+        context.translate(ship.x, ship.y);
+        context.rotate((ship.angle - 90) * (Math.PI / 180)); // this will rotate the entire context around the ship.position
+        context.beginPath();
+        ...
+    }
+
 
 ## Thrust Tail
 
@@ -129,4 +214,3 @@ Inside the updateStars() function, put in two for loops, one for starsNear and s
 ## Scoring and UI
 
 ## Game Over
-
