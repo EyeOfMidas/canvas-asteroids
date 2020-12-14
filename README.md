@@ -231,6 +231,24 @@ And since we want the ship to stay where we can see it, use the `wrapAround` fun
 
 ## Thrust Tail
 
+We've got a zippy little ship flying around space, but something is missing. Games are always about fun feedback, so let's take a bit of a detour to add in some polish: a flame tail!
+
+There's not much to it; we'll use similar drawing logic for the shipShape and instead draw a little orange triangle at the base. We'll only draw the flame when the thrust key is held down, so the player can get immediate feedback about what they're doing.
+
+Inside the `drawShip` function, below where we draw the ship, but still inside the ship coordinate space (you know, put before the `context.restore()`) you can add this.
+
+    if (keys[KeyCode.Up]) {
+        context.fillStyle = "orange";
+        context.beginPath();
+        context.moveTo(-ship.width / 4, -ship.height / 2);
+        context.lineTo(ship.width / 4, -ship.height / 2);
+        context.lineTo(0, -1.2 * ship.height); // fiddle with the -1.2 value here to change how big the flame is
+        context.lineTo(-ship.width / 4, -ship.height / 2);
+        context.fill();
+    }
+
+Now when you press the Up key, a little jet of rocket flame will shoot out the back of your ship and send you zooming through space!
+
 ## Asteroids
 
 ## Collisions
