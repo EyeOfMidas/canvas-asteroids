@@ -287,8 +287,11 @@
 
             wrapAround(ship); // don't get lost in space!
 
+            shootDelay--;
             if (keys[KeyCode.Space]) {
-                addBullet();
+                if (shootDelay <= 0) {
+                    addBullet();
+                }
             }
 
             for (let j = 0; j < asteroids.length; j++) {
@@ -413,6 +416,7 @@
         }
 
         function addBullet() {
+            shootDelay = 15;
             let anglePosition = getShipAnglePosition();
             let bullet = {};
             //this will put the bullet's starting point at the tip of the rocket's nose
