@@ -161,6 +161,7 @@
             initStars();
             initShip();
             initAsteroids();
+            initBullets();
         }
 
         function initStars() {
@@ -375,11 +376,21 @@
             }
         }
 
+        function initBullets() {
+        }
+
+        function updateBullets() {
+        }
+
+        function drawBullets(context) {
+        }
+
         function update() {
             //update the game objects here
             updateStars();
             updateShip();
             updateAsteroids();
+            updateBullets();
         }
 
         function draw(context) {
@@ -387,9 +398,8 @@
             drawStars(context);
             drawShip(context);
             drawAsteroids(context);
+            drawBullets(context);
         }
-
-
     </script>
 </body>
 
