@@ -285,6 +285,18 @@
             ship.y += ship.velocity.y;
 
             wrapAround(ship); // don't get lost in space!
+
+            for (let j = 0; j < asteroids.length; j++) {
+                let asteroid = asteroids[j];
+                if (doesCollide(ship, asteroid)) {
+                    hitShip(asteroid); // crash into this asteroid!
+                    break;
+                }
+            }
+        }
+
+        function hitShip(asteroid) {
+
         }
 
         function drawShip(context) {
