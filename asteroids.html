@@ -391,6 +391,21 @@
         }
 
         function addBullet() {
+            let anglePosition = getShipAnglePosition();
+            let bullet = {};
+            //this will put the bullet's starting point at the tip of the rocket's nose
+            bullet.x = ship.x + ((ship.height / 2) * anglePosition.x);
+            bullet.y = ship.y + ((ship.height / 2) * anglePosition.y);
+            //big chunky bullets
+            bullet.width = 6;
+            bullet.height = 6;
+            bullet.velocity = {};
+            // the bullets have their own initial velocity and direction,
+            // but also inherit the ship's velocity too.
+            bullet.velocity.x = ship.bulletSpeed * anglePosition.x + ship.velocity.x;
+            bullet.velocity.y = ship.bulletSpeed * anglePosition.y + ship.velocity.y;
+
+            bullets.push(bullet);
         }
 
         function update() {
