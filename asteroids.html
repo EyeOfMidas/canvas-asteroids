@@ -174,6 +174,19 @@
                 star.height = star.width;
                 starsNear.push(star);
             }
+
+            starsFar = [];
+            for (let i = 0; i < 300; i++) {
+                let star = {};
+                //This function picks a random coordinate within the bounds of the window
+                let randomPosition = getRandomPositionOnScreen();
+                star.x = randomPosition.x;
+                star.y = randomPosition.y;
+                //stars are circles, so their width and height are the same size
+                star.width = rand(0.1, 2);
+                star.height = star.width;
+                starsFar.push(star);
+            }
         }
 
         function updateStars() {
@@ -185,6 +198,21 @@
             context.fillStyle = "lightgray";
             for (let i = 0; i < starsNear.length; i++) {
                 let star = starsNear[i];
+                //saving and restoring the context like this allows us to draw 0,0 centered images, which makes later transformations easier.
+                context.save();
+                //moves the canvas matrix to be centered on the star's screen position
+                context.translate(star.x, star.y);
+                //star drawing a vector shape
+                context.beginPath();
+                //plots out a cirle at 0,0: (x, y, radius, startAngle, endAngle)
+                context.arc(0, 0, star.width / 2, 0, 2 * Math.PI);
+                //draws the shape as a filled, lightgray circle
+                context.fill();
+                context.restore();
+            }
+
+            for (let i = 0; i < starsFar.length; i++) {
+                let star = starsFar[i];
                 //saving and restoring the context like this allows us to draw 0,0 centered images, which makes later transformations easier.
                 context.save();
                 //moves the canvas matrix to be centered on the star's screen position
