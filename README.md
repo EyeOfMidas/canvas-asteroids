@@ -343,6 +343,56 @@ Now when the ship touches an asteroid, it will vanish and appear somewhere else!
 
 ## Bullets
 
+A game where you only can die is not really fun, so let's add a way to defend your ship. We can spawn bullets that can collide with asteroids and break them apart. Like any other object that moves and is drawn, let's create some containing functions and call them in their appropriate places.
+
+* `initBullets()`
+* `updateBullets()`
+* `drawBullets(context)`
+
+Since we're not creating bullets right when the game starts, the `initBullets` function will just set the bullets array to empty, and get it ready to receive our bullet objects.
+
+    function initBullets() {
+        bullets = [];
+    }
+
+Since bullets won't happen unless the player shoots them, let's add in a way to add new bullets when they press a key. Create a new function called `addBullet()` and call it inside our `updateShip` function.
+
+    if (keys[KeyCode.Space]) {
+        addBullet();
+    }
+
+Inside the `addBullet` function, you'll have to create a bullet object and push it into the bullets array. Bullets should spawn from the front of the ship, and inherit the ship's velocity. Bullets should also have a size so they can hit things using our collision function.
+
+    function addBullet() {
+        let anglePosition = getShipAnglePosition();
+        let bullet = {};
+        bullet.x = ship.x + ((ship.height / 2) * anglePosition.x);
+        bullet.y = ship.y + ((ship.height / 2) * anglePosition.y);
+        bullet.width = 6;
+        bullet.height = 6;
+        bullet.velocity = {};
+        bullet.velocity.x = ship.bulletSpeed * anglePosition.x + ship.velocity.x;
+        bullet.velocity.y = ship.bulletSpeed * anglePosition.y + ship.velocity.y;
+        bullets.push(bullet);
+    }
+
+With this change, pressing spacebar will create bullets and push them into our bullet array, but we can't see any because we're not drawing them!
+
+Drawing bullets is almost identical to how we draw stars:
+
+    function drawBullets(context) {
+        context.fillStyle = "white";
+        for (let i = 0; i < bullets.length; i++) {
+            let bullet = bullets[i];
+            context.save();
+            context.translate(bullet.x, bullet.y);
+            context.beginPath();
+            context.arc(0, 0, bullet.width / 2, 0, 2 * Math.PI);
+            context.fill();
+            context.restore();
+        }
+    }
+
 ## Bullet Collisions
 
 ## Asteroid Splitting
