@@ -287,6 +287,10 @@
 
             wrapAround(ship); // don't get lost in space!
 
+            if (keys[KeyCode.Space]) {
+                addBullet();
+            }
+
             for (let j = 0; j < asteroids.length; j++) {
                 let asteroid = asteroids[j];
                 if (doesCollide(ship, asteroid)) {
@@ -377,12 +381,16 @@
         }
 
         function initBullets() {
+            bullets = [];
         }
 
         function updateBullets() {
         }
 
         function drawBullets(context) {
+        }
+
+        function addBullet() {
         }
 
         function update() {
