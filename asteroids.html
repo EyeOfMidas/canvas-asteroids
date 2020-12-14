@@ -237,6 +237,20 @@
         }
 
         function initShip() {
+            ship = {
+                x: 0,
+                y: 0,
+                angle: -90,
+                acceleration: { x: 0, y: 0 },
+                velocity: { x: 0, y: 0 },
+                width: 10,
+                height: 15,
+                rotationSpeed: 3,
+                thrust: 0.2,
+                bulletSpeed: 2,
+                life: 3,
+                score: 0,
+            };
 
         }
 
@@ -244,6 +258,18 @@
         }
 
         function drawShip(context) {
+            context.save();
+            // the styleshere are css color values: try putting any HEX code, rgb() or color word here!
+            context.strokeStyle = "red";
+            context.fillStyle = "crimson";
+            context.translate(ship.x, ship.y);
+
+            context.beginPath();
+            shipShape(context); // this is just a convenient function for drawing a triangle
+            context.fill();
+            context.stroke();
+
+            context.restore();
         }
 
         function update() {
