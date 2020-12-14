@@ -251,6 +251,64 @@ Now when you press the Up key, a little jet of rocket flame will shoot out the b
 
 ## Asteroids
 
+Space isn't really space without some huge gray rocks floating through it. Since this is a short kata, we can make do with some gray circles. Much like the stars and ship, let's set up some functions to contain the asteroids.
+
+* `initAsteroids()`
+* `updateAsteroids()`
+* `drawAsteroids(context)`
+
+and call them in the appropriate spots.
+
+Inside the `initAsteroids` function, let's make a loop like we did with starsNear, and add a few asteroid objects to an array. We want to give these asteroid objects a size, a position, and velocity so they can drift around.
+
+    function initAsteroids() {
+        asteroids = [];
+        for (let i = 0; i < 2; i++) {
+            let position = getRandomPositionOnScreen();
+            let velocity = { x: rand(-1, 2), y: rand(-1, 2) };
+            let size = { width: 200, height: 200 };
+            let asteroid = {};
+            asteroid.x = position.x;
+            asteroid.y = position.y;
+            asteroid.width = size.width;
+            asteroid.height = size.height;
+            asteroid.velocity = {};
+            asteroid.velocity.x = velocity.x;
+            asteroid.velocity.y = velocity.y;
+            asteroids.push(asteroid);
+        }
+    }
+
+The drawing function will be similar to both the stars and ship drawing function; we want to center the context on the asteroid and draw it as a circle.
+
+    function drawAsteroids(context) {
+        context.strokeStyle = "lightgray";
+        context.fillStyle = "gray";
+        for (let i = 0; i < asteroids.length; i++) {
+            let asteroid = asteroids[i];
+            context.save();
+            context.translate(asteroid.x, asteroid.y);
+            context.beginPath();
+            context.arc(0, 0, asteroid.width / 2, 0, 2 * Math.PI);
+            context.fill();
+            context.stroke();
+            context.restore();
+        }
+    }
+
+And now we've got some big gray circles on the screen, adding the position update loop for each asteroid will make them the best kind of floaty.
+
+    function updateAsteroids() {
+        for (let i = 0; i < asteroids.length; i++) {
+            let asteroid = asteroids[i];
+            asteroid.x += asteroid.velocity.x;
+            asteroid.y += asteroid.velocity.y;
+            wrapAround(asteroid); // they should remain in the play field
+        }
+    }
+
+At this point, you should have two asteroids drifting randomly across your starfield. Truly a space to behold!
+
 ## Collisions
 
 ## Bullets
