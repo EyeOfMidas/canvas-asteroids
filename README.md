@@ -38,9 +38,9 @@ Draw takes in the canvas context object, and is called once per frame to draw th
 
 ## Starfield
 We can't have an asteroids game without setting it in space! So let's draw some random stars on the screen. Create three new functions:
-initStars()
-updateStars()
-drawStars(context)
+* `initStars()`
+* `updateStars()`
+* `drawStars(context)`
 
 and call them in their respective game-loop functions. (For clarity, put `initStars()` at the bottom of the `init()` function, etc).
 
@@ -112,21 +112,484 @@ Inside the updateStars() function, put in two for loops, one for starsNear and s
 
 ## Ship
 
+The ship is set up and drawn the same way as the stars are, but there's only one. First, create 3 new functions:
+* `initShip()`
+* `updateShip()`
+* `drawShip(context)`
+
+and call them in their respective game-loop functions. (For clarity, put `initShip()` at the bottom of the `init()` function, etc).
+
+First, set up the ship with it's default values. There is already a `ship` object defined, so go ahead and copy the initialization and also put it in the `initShip()` function.
+
+    function initShip() {
+        ship = { 
+            x: 0,
+            y: 0,
+            angle: -90,
+            acceleration: { x: 0, y: 0 },
+            velocity: { x: 0, y: 0 },
+            width: 10,
+            height: 15,
+            rotationSpeed: 3,
+            thrust: 0.2,
+            bulletSpeed: 2,
+            life: 3,
+            score: 0,
+        };
+    }
+
+To draw the ship as a triangle, I created a convenient function called `shipShape` that will draw it nicely. Just like drawing the stars, we're going to translate to the ship position, and draw everything centered at 0,0 to make things like rotations easy to calculate.
+
+    function drawShip(context) {
+        context.save();
+        // the styleshere are css color values: try putting any HEX code, rgb() or color word here!
+        context.strokeStyle = "red";
+        context.fillStyle = "crimson";
+        context.translate(ship.x, ship.y);
+
+        context.beginPath();
+        shipShape(context); // this is just a convenient function for drawing a triangle
+        context.fill();
+        context.stroke();
+
+        context.restore();
+    }
+
+Now you should be drawing a neat red triangle ship out in space! ... way off in the corner. Let's tweak some of the initial values of the ship so it starts in the center of the screen. Inside the `initShip` function, add the following lines:
+
+    ship.x = canvas.width / 2;
+    ship.y = canvas.height / 2;
+
+This will set the ship starting position to be the center of the viewable window, however big it might be.
+
+The ship seems a little small, so we can adjust the width and height here too, and the `shipShape` function will take care of drawing the properly sized triangle. Let's change the width to 15 and the height to 20, so the ship is a bit bigger.
+
+    ship = {
+        ...
+        width: 15,
+        height: 20,
+        ...
+    }
+
+
 ## Movement
+
+This is a pretty spiffy triangle, but it would be a lot cooler if we could make it move around in space. I've added a few _event listeners_ to handle the details, but essentially I'm setting up an array of keys and keeping track of if they're pressed or not. We can use the `keys` array in the update loop to check if a key is currently held down, and make the ship do things based on that.
+
+Let's add in some turning, first. Inside `updateShip()` add the following two `if` checks:
+
+    function updateShip() {
+        if (keys[KeyCode.Left]) {
+            ship.angle -= ship.rotationSpeed;
+        }
+
+        if (keys[KeyCode.Right]) {
+            ship.angle += ship.rotationSpeed;
+        }
+    }
+
+This will detect if the left or right arrow keys are pressed, and change the `angle` on the ship by a small amount. But we'll need to change the way we draw the ship to reflect the proper rotation. Inside `drawShip`, after the `context.translate` but before we `beginPath` you'll need to add a context rotation.
+
+    function drawShip(context) {
+        ...
+        context.translate(ship.x, ship.y);
+        context.rotate((ship.angle - 90) * (Math.PI / 180)); // this will rotate the entire context around the ship.position
+        context.beginPath();
+        ...
+    }
+
+Neat! The ship will turn around. We'll need to add some thrust and space physics to really make this feel like a space ship though. Typical physics rules in 2D games use acceleration to affect velocity, and velocity to affect position.
+
+At the top of the `updateShip` function, let's zero-out the ship acceleration each update loop.
+
+    ship.acceleration.x = 0;
+    ship.acceleration.y = 0;
+
+and right below that, let's add a key listener for up, to apply accleration (thrust) in the direction the ship is facing.
+
+    if (keys[KeyCode.Up]) {
+        // the getShipAnglePosition uses sin and cos to determine which way the ship is facing
+        let position = getShipAnglePosition();
+
+        //then we apply the maximum thrust value to those values to move the ship in that direction
+        ship.acceleration.x = ship.thrust * position.x;
+        ship.acceleration.y = ship.thrust * position.y;
+    }
+
+Now that we've turned on directional accleration, all that's left to do is to apply it to the velocity and the position. Below the turning logic, add the following calculations:
+
+    ship.velocity.x += ship.acceleration.x;
+    ship.velocity.y += ship.acceleration.y;
+
+    ship.x += ship.velocity.x;
+    ship.y += ship.velocity.y;
+
+And since we want the ship to stay where we can see it, use the `wrapAround` function that we used for the stars as well.
+
+        wrapAround(ship); // don't get lost in space!
+    }
 
 ## Thrust Tail
 
+We've got a zippy little ship flying around space, but something is missing. Games are always about fun feedback, so let's take a bit of a detour to add in some polish: a flame tail!
+
+There's not much to it; we'll use similar drawing logic for the shipShape and instead draw a little orange triangle at the base. We'll only draw the flame when the thrust key is held down, so the player can get immediate feedback about what they're doing.
+
+Inside the `drawShip` function, below where we draw the ship, but still inside the ship coordinate space (you know, put before the `context.restore()`) you can add this.
+
+    if (keys[KeyCode.Up]) {
+        context.fillStyle = "orange";
+        context.beginPath();
+        context.moveTo(-ship.width / 4, -ship.height / 2);
+        context.lineTo(ship.width / 4, -ship.height / 2);
+        context.lineTo(0, -1.2 * ship.height); // fiddle with the -1.2 value here to change how big the flame is
+        context.lineTo(-ship.width / 4, -ship.height / 2);
+        context.fill();
+    }
+
+Now when you press the Up key, a little jet of rocket flame will shoot out the back of your ship and send you zooming through space!
+
 ## Asteroids
+
+Space isn't really space without some huge gray rocks floating through it. Since this is a short kata, we can make do with some gray circles. Much like the stars and ship, let's set up some functions to contain the asteroids.
+
+* `initAsteroids()`
+* `updateAsteroids()`
+* `drawAsteroids(context)`
+
+and call them in the appropriate spots.
+
+Inside the `initAsteroids` function, let's make a loop like we did with starsNear, and add a few asteroid objects to an array. We want to give these asteroid objects a size, a position, and velocity so they can drift around.
+
+    function initAsteroids() {
+        asteroids = [];
+        for (let i = 0; i < 2; i++) {
+            let position = getRandomPositionOnScreen();
+            let velocity = { x: rand(-1, 2), y: rand(-1, 2) };
+            let size = { width: 200, height: 200 };
+            let asteroid = {};
+            asteroid.x = position.x;
+            asteroid.y = position.y;
+            asteroid.width = size.width;
+            asteroid.height = size.height;
+            asteroid.velocity = {};
+            asteroid.velocity.x = velocity.x;
+            asteroid.velocity.y = velocity.y;
+            asteroids.push(asteroid);
+        }
+    }
+
+The drawing function will be similar to both the stars and ship drawing function; we want to center the context on the asteroid and draw it as a circle.
+
+    function drawAsteroids(context) {
+        context.strokeStyle = "lightgray";
+        context.fillStyle = "gray";
+        for (let i = 0; i < asteroids.length; i++) {
+            let asteroid = asteroids[i];
+            context.save();
+            context.translate(asteroid.x, asteroid.y);
+            context.beginPath();
+            context.arc(0, 0, asteroid.width / 2, 0, 2 * Math.PI);
+            context.fill();
+            context.stroke();
+            context.restore();
+        }
+    }
+
+And now we've got some big gray circles on the screen, adding the position update loop for each asteroid will make them the best kind of floaty.
+
+    function updateAsteroids() {
+        for (let i = 0; i < asteroids.length; i++) {
+            let asteroid = asteroids[i];
+            asteroid.x += asteroid.velocity.x;
+            asteroid.y += asteroid.velocity.y;
+            wrapAround(asteroid); // they should remain in the play field
+        }
+    }
+
+At this point, you should have two asteroids drifting randomly across your starfield. Truly a space to behold!
 
 ## Collisions
 
+But what good are giant rocks if you can't crash into them? We can use a really simple formula to simulate collision logic.
+In the file there's already a function called `doesCollide()` that uses the distance formula to determine if two objects are too close to each other. This isn't nearly as accurate as a full physics engine since it treats all objects like circles, but... all of the objects we can crash into are circles!
+
+Inside the updateShip function, after we manipulate the ship and wrap it to the screen, add a loop that checks over all the asteroids and determines if the ship is intersecting them.
+
+    for (let j = 0; j < asteroids.length; j++) {
+        let asteroid = asteroids[j];
+        if (doesCollide(ship, asteroid)) {
+             // crash into this asteroid!
+            break;
+        }
+    }
+
+But what do we want to do? Create a function called `hitShip(asteroid)` and call it from inside our collision loop (where we have the comment _ // crash into this asteroid!_). Inside of `hitShip` we should do a few things; first, we should pick a new position for the ship to spawn, set the velocity and acceleration to 0, and force the thrust key to no longer trigger.
+
+    function hitShip(asteroid) {
+        // move to a new random location (hopefully not somewhere an asteroid already is)
+        ship.x = rand(0, canvas.width);
+        ship.y = rand(0, canvas.height);
+        // quit moving the ship
+        ship.velocity.x = 0;
+        ship.velocity.y = 0;
+        ship.acceleration.x = 0;
+        ship.acceleration.y = 0;
+        // if the user is still holding up, clear that key
+        keys[KeyCode.Up] = false;
+    }
+
+Now when the ship touches an asteroid, it will vanish and appear somewhere else!
+
 ## Bullets
+
+A game where you only can die is not really fun, so let's add a way to defend your ship. We can spawn bullets that can collide with asteroids and break them apart. Like any other object that moves and is drawn, let's create some containing functions and call them in their appropriate places.
+
+* `initBullets()`
+* `updateBullets()`
+* `drawBullets(context)`
+
+Since we're not creating bullets right when the game starts, the `initBullets` function will just set the bullets array to empty, and get it ready to receive our bullet objects.
+
+    function initBullets() {
+        bullets = [];
+    }
+
+Since bullets won't happen unless the player shoots them, let's add in a way to add new bullets when they press a key. Create a new function called `addBullet()` and call it inside our `updateShip` function.
+
+    if (keys[KeyCode.Space]) {
+        addBullet();
+    }
+
+Inside the `addBullet` function, you'll have to create a bullet object and push it into the bullets array. Bullets should spawn from the front of the ship, and inherit the ship's velocity. Bullets should also have a size so they can hit things using our collision function.
+
+    function addBullet() {
+        let anglePosition = getShipAnglePosition();
+        let bullet = {};
+        bullet.x = ship.x + ((ship.height / 2) * anglePosition.x);
+        bullet.y = ship.y + ((ship.height / 2) * anglePosition.y);
+        bullet.width = 6;
+        bullet.height = 6;
+        bullet.velocity = {};
+        bullet.velocity.x = ship.bulletSpeed * anglePosition.x + ship.velocity.x;
+        bullet.velocity.y = ship.bulletSpeed * anglePosition.y + ship.velocity.y;
+        bullets.push(bullet);
+    }
+
+With this change, pressing spacebar will create bullets and push them into our bullet array, but we can't see any because we're not drawing them!
+
+Drawing bullets is almost identical to how we draw stars:
+
+    function drawBullets(context) {
+        context.fillStyle = "white";
+        for (let i = 0; i < bullets.length; i++) {
+            let bullet = bullets[i];
+            context.save();
+            context.translate(bullet.x, bullet.y);
+            context.beginPath();
+            context.arc(0, 0, bullet.width / 2, 0, 2 * Math.PI);
+            context.fill();
+            context.restore();
+        }
+    }
+
+Playing the game at this point will reveal three important facts. We have no rate limit to how quickly bullets can spawn (you make one bullet per frame drawn when holding spacebar), bullets last forever on screen, and none of the bullets are moving!
+
+Let's get the bullets moving first by updating them inside the `updateBullets` function. Bullets will also use the same physics logic that asteroids do, to drift around.
+
+    function updateBullets() {
+        for (let i = 0; i < bullets.length; i++) {
+            let bullet = bullets[i];
+            bullet.x += bullet.velocity.x;
+            bullet.y += bullet.velocity.y;
+            wrapAround(bullet);
+        }
+    }
+
+This is really neat, actually; bullets spawn infinitely and last forever, so if you spend a few minutes playing your screen will end up a hailstorm of random bullets. Let's add a lifetime so they go away after a few ticks.
+
+When we `addBullet` let's give the bullet a lifetime value as well.
+
+    bullet.lifespan = 75;
+
+In the `updateBullets` function, deduct 1 from each bullets' lifespan when we update them.
+
+    bullet.lifespan--;
+
+After we have updated all the bullets (outside the for loop), we'll have to go through the bullets array and filter out any bullets that have a lifespan less than or equal to 0.
+
+    bullets = bullets.filter(bullet => bullet.lifespan > 0);
+
+Now when we try it out, the bullets still spawn very quickly, but will vanish shortly. Let's slow down the rate that we add bullets, and add a shoot delay. Inside `addBullet` set the `shootDelay` variable to a reasonable number.
+
+    shootDelay = 15;
+
+Now when we spawn the bullets, we need to check if we are within the delay time (just like how we do the lifespan for bullets) and only add a bullet when we've waited long enough.
+
+    ...
+    shootDelay--;
+    if (keys[KeyCode.Space]) {
+        if (shootDelay <= 0) {
+            addBullet();
+        }
+    }
+    ...
+
+Don't forget to deduct 1 from the shoot delay each update loop, or you'll only be able to shoot one bullet ever!
 
 ## Bullet Collisions
 
+Next, we'll need to compare the positions of the bullets with the asteroids to determine if they're colliding. Inside the `updateBullets` function, while we're looping through the bullets, add a check against the asteroids to see if the bullet collides.
+
+    ...
+    wrapAround(bullet);
+    bullet.lifespan--;
+
+    // check each asteroid against this bullet
+    for (let j = 0; j < asteroids.length; j++) {
+        let asteroid = asteroids[j];
+        if (doesCollide(bullet, asteroid)) {
+            hitAsteroid(bullet, asteroid);
+            break;
+        }
+    }
+    ...
+
+Create the `hitAsteroid(bullet, asteroid)` function and we can destroy both the bullet and asteroid when they collide.
+
+    function hitAsteroid(bullet, asteroid) {
+        bullet.lifespan = 0;
+        let asteroidIndex = asteroids.indexOf(asteroid);
+        asteroids.splice(asteroidIndex, 1);
+    }
+
 ## Asteroid Splitting
+
+A single bullet destroying each asteroid is pretty boring, so let's make each asteroid instead spawn two more smaller asteroids. Before we do that we'll need to refactor some of the code to make the asteroid construction easier to reuse without having to copy-and-paste. 
+
+In the `initAsteroid` function, pull out the asteroid-creating into a separate function, called `addAsteroid`. Replace the lines that built and added the asteroid to the asteroids array with a call to the refactored function. Notice how we didn't actually change anything here; a refactor is a code change that alters the structure, but does not alter the functionality of the code.
+
+    function initAsteroids() {
+        asteroids = [];
+        for (let i = 0; i < 2; i++) {
+            let position = getRandomPositionOnScreen();
+            let velocity = { x: rand(-1, 2), y: rand(-1, 2) };
+            let size = { width: 200, height: 200 };
+            addAsteroid(position, velocity, size); // <-- this is now a function
+        }
+    }
+
+    function addAsteroid(position, velocity, size) { // but this is still doing the same thing
+        let asteroid = {};
+        asteroid.x = position.x;
+        asteroid.y = position.y;
+        asteroid.width = size.width;
+        asteroid.height = size.height;
+        asteroid.velocity = {};
+        asteroid.velocity.x = velocity.x;
+        asteroid.velocity.y = velocity.y;
+        asteroids.push(asteroid);
+    }
+
+With the ability to add asteroids easily reusable, we should add a few lines to the end of the `hitAsteroid` function. Let's create two new asteroids that are half the size of the original one, and add in a little bit of velocity randomness. We still want the new asteroids moving in the same general direction as the original one, so we'll inherit some of it's velocity.
+
+        ...
+        asteroids.splice(asteroidIndex, 1);
+
+        // this size object is going to be half the size of the asteroid this bullet is colliding with
+        let newSize = { width: asteroid.width / 2, height: asteroid.height / 2 };
+
+        let velocityVariation = {};
+
+        // a slightly random velocity, based on the parent asteroid
+        velocityVariation.x = asteroid.velocity.x + rand(-1, 2);
+        velocityVariation.y = asteroid.velocity.y + rand(-1, 2);
+        addAsteroid(asteroid, velocityVariation, newSize);
+
+        // a slightly different random velocity, so they drift apart
+        velocityVariation.x = asteroid.velocity.x + rand(-1, 2);
+        velocityVariation.y = asteroid.velocity.y + rand(-1, 2);
+        addAsteroid(asteroid, velocityVariation, newSize);
+    }
+
+At this point, you've got a decent game. You can fly around and shoot asteroids until they're teeny tiny impossible-to-hit specks that insta-kill you... yea we need to put a limit on how small they're allowed to get before they're just destroyed.
+
+We can use an early return conditional to check if the size of the asteroid is too small, and just not create the two new ones. Above the creation of the two new asteroids, put in a check on the current asteroid's size, and early return if it's below a certain threshold.
+
+    if (asteroid.width <= 25) {
+        return;
+    }
+
+Now we can play, and shoot all the asteroids until there are none left!
 
 ## Scoring and UI
 
+If you've played your game for a little while, you realize there's some things missing. You can die any number of times with no real penalty, and once all the asteroids are gone, it's pretty empty and pointless. So let's add some arbitrary numbers to influence your emotions! Add a new function called `drawUI(context)` and add it at the end of our `draw` function.
+
+Since UI always goes over top of anything else on the screen, it has to be drawn last.
+
+    function drawUI(context) {
+        context.font = "30px Arial";
+        context.textAlign = "left";
+        context.fillText(`Lives: ${ship.life}`, 10, 50);
+        context.textAlign = "right";
+        context.fillText(`Score: ${ship.score}`, canvas.width - 10, 50);
+    }
+
+Since we've kept game data, update logic and drawing logic separate, it's really easy to ask the appropriate objects about their values and just draw them on the screen. But we're not actually adding points, or subtracting lives. So let's find some appropriate places to adjust those.
+
+In the `hitShip` function seems to be a pretty reasonable place to subtract a life; at the top of that function just add
+
+    ship.life--;
+
+and watch it count down as you crash over and over. Similarly, adding to your score makes the most sense when a bullet hits an asteroid, so in the `hitAsteroid` function, add
+
+    ship.score += asteroid.width * 10;
+
+and watch your score skyrocket as you blast those space rocks.
+
 ## Game Over
 
+Amazing! We nearly have a finished game, but we're missing a win state and a lose state. Once you've lost all your lives, the game should tell you what your current score is, and then reset so you can try again. The best place to put this check is right after we adjust the ship.life variable.
+
+    if (ship.life <= 0) {
+        alert(`You lose! Score: ${ship.score}`);
+        init();
+        return;
+    }
+
+Similarly, if you're smashing asteroids and destroy the last one, the game should display a victory message and reset so you can keep playing. Put this inside the early return condition when shooting asteroids.
+
+    if (asteroid.width <= 25) {
+        if (asteroids.length == 0) {
+            alert(`You win! Score: ${ship.score}`);
+            init();
+        }
+        return;
+    }
+
+Now you have a full game! Exciting space combat, death, high scores and endless replayability!
+
+## Finish?
+
+So game development is never really done. As you go through this tutorial, hopefully you've seen things to improve and stuff to add. You can speed up or slow down the ship; add more asteroids, or smash them into more pieces. You could add some neat effects like smashing asteroids when crashing into them, or any number of improvements.
+
+There are a few flaws and limitations to this approach which I won't cover here.
+
+### Flaws
+Death/respawn is random and sometimes puts you inside an asteroid - yea, we're not trying to hard to reset your ship safely. Most of the time, it works out ok, but it's still a possibility that you'll die the instance your ship respawns because of where it was placed.
+
+No delta time for updates - If you have a 144hz monitor, you'll probably have a bad time. Typically the update loop is kept separate from the requestAnimationFrame, usually at a lockstep of around 60fps. Because of how this was written, we're not taking into account how much time your beefy video card might take to render each frame. This means the game will run much faster on faster machines, and much slower on slower ones.
+
+No fixed world bounds - the world and much of it's drawn pieces are very dependent on your browser window's size. If you resize the window, the game window will adapt, but you can quickly see the mistakes in the screen wrapping logic.
+
+### Limitations
+The code is starting to get a bit unruly -  With everything in one single file, our game is now over 500 lines and getting a little unwieldy to navigate. I'm not going to cover how to split things apart into separate files or dynamically load modules.
+
+There are no levels or state machines - There is no main menu, no real "game over" screen. As games get more elaborate, they need to split the flow of the game into pieces, called "states" which are managed by a Finite State Machine pattern.
+
+This game is already out of date - javascript and the web browsers you use to play this game are _constantly_ evolving. As I write this, the proper way to scale canvas based on devicePixelRatio is tweaked, the way we load javascript files is different and more secure, and even the way we bind to key presses is now different (don't use event.keyCode anymore!) I'll do my best to keep this relevant, but if something is not right, let me know in the Issues and I'll see about updating the tutorial to reflect best practices.
+
+## Finish!
+
+I hope you successfully made an asteroids game, and enjoyed following along while you learned how. Send me any feedback, comments or questions to eyeofmidas@gmail.com or submit an issue here. I'd love to hear about your experiences.
