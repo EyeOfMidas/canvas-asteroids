@@ -419,6 +419,21 @@
             bullet.lifespan = 0;
             let asteroidIndex = asteroids.indexOf(asteroid);
             asteroids.splice(asteroidIndex, 1);
+
+            // this size object is going to be half the size of the asteroid this bullet is colliding with
+            let newSize = { width: asteroid.width / 2, height: asteroid.height / 2 };
+
+            let velocityVariation = {};
+
+            // a slightly random velocity, based on the parent asteroid
+            velocityVariation.x = asteroid.velocity.x + rand(-1, 2);
+            velocityVariation.y = asteroid.velocity.y + rand(-1, 2);
+            addAsteroid(asteroid, velocityVariation, newSize);
+
+            // a slightly different random velocity, so they drift apart
+            velocityVariation.x = asteroid.velocity.x + rand(-1, 2);
+            velocityVariation.y = asteroid.velocity.y + rand(-1, 2);
+            addAsteroid(asteroid, velocityVariation, newSize);
         }
 
         function drawBullets(context) {
