@@ -347,16 +347,20 @@
                 let position = getRandomPositionOnScreen();
                 let velocity = { x: rand(-1, 2), y: rand(-1, 2) };
                 let size = { width: 200, height: 200 };
-                let asteroid = {};
-                asteroid.x = position.x;
-                asteroid.y = position.y;
-                asteroid.width = size.width;
-                asteroid.height = size.height;
-                asteroid.velocity = {};
-                asteroid.velocity.x = velocity.x;
-                asteroid.velocity.y = velocity.y;
-                asteroids.push(asteroid);
+                addAsteroid(position, velocity, size);
             }
+        }
+
+        function addAsteroid(position, velocity, size) {
+            let asteroid = {};
+            asteroid.x = position.x;
+            asteroid.y = position.y;
+            asteroid.width = size.width;
+            asteroid.height = size.height;
+            asteroid.velocity = {};
+            asteroid.velocity.x = velocity.x;
+            asteroid.velocity.y = velocity.y;
+            asteroids.push(asteroid);
         }
 
         function updateAsteroids() {
