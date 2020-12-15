@@ -548,7 +548,48 @@ and watch it count down as you crash over and over. Similarly, adding to your sc
 
 and watch your score skyrocket as you blast those space rocks.
 
-
-
-
 ## Game Over
+
+Amazing! We nearly have a finished game, but we're missing a win state and a lose state. Once you've lost all your lives, the game should tell you what your current score is, and then reset so you can try again. The best place to put this check is right after we adjust the ship.life variable.
+
+    if (ship.life <= 0) {
+        alert(`You lose! Score: ${ship.score}`);
+        init();
+        return;
+    }
+
+Similarly, if you're smashing asteroids and destroy the last one, the game should display a victory message and reset so you can keep playing. Put this inside the early return condition when shooting asteroids.
+
+    if (asteroid.width <= 25) {
+        if (asteroids.length == 0) {
+            alert(`You win! Score: ${ship.score}`);
+            init();
+        }
+        return;
+    }
+
+Now you have a full game! Exciting space combat, death, high scores and endless replayability!
+
+## Finish?
+
+So game development is never really done. As you go through this tutorial, hopefully you've seen things to improve and stuff to add. You can speed up or slow down the ship; add more asteroids, or smash them into more pieces. You could add some neat effects like smashing asteroids when crashing into them, or any number of improvements.
+
+There are a few flaws and limitations to this approach which I won't cover here.
+
+### Flaws
+Death/respawn is random and sometimes puts you inside an asteroid - yea, we're not trying to hard to reset your ship safely. Most of the time, it works out ok, but it's still a possibility that you'll die the instance your ship respawns because of where it was placed.
+
+No delta time for updates - If you have a 144hz monitor, you'll probably have a bad time. Typically the update loop is kept separate from the requestAnimationFrame, usually at a lockstep of around 60fps. Because of how this was written, we're not taking into account how much time your beefy video card might take to render each frame. This means the game will run much faster on faster machines, and much slower on slower ones.
+
+No fixed world bounds - the world and much of it's drawn pieces are very dependent on your browser window's size. If you resize the window, the game window will adapt, but you can quickly see the mistakes in the screen wrapping logic.
+
+### Limitations
+The code is starting to get a bit unruly -  With everything in one single file, our game is now over 500 lines and getting a little unwieldy to navigate. I'm not going to cover how to split things apart into separate files or dynamically load modules.
+
+There are no levels or state machines - There is no main menu, no real "game over" screen. As games get more elaborate, they need to split the flow of the game into pieces, called "states" which are managed by a Finite State Machine pattern.
+
+This game is already out of date - javascript and the web browsers you use to play this game are _constantly_ evolving. As I write this, the proper way to scale canvas based on devicePixelRatio is tweaked, the way we load javascript files is different and more secure, and even the way we bind to key presses is now different (don't use event.keyCode anymore!) I'll do my best to keep this relevant, but if something is not right, let me know in the Issues and I'll see about updating the tutorial to reflect best practices.
+
+## Finish!
+
+I hope you successfully made an asteroids game, and enjoyed following along while you learned how. Send me any feedback, comments or questions to eyeofmidas@gmail.com or submit an issue here. I'd love to hear about your experiences.
