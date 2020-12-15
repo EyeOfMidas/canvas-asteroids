@@ -473,6 +473,11 @@
         }
 
         function drawUI(context) {
+            context.font = "30px Arial";
+            context.textAlign = "left";
+            context.fillText(`Lives: ${ship.life}`, 10, 50);
+            context.textAlign = "right";
+            context.fillText(`Score: ${ship.score}`, canvas.width - 10, 50);
         }
 
         function update() {
