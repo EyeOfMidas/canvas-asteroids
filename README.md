@@ -439,7 +439,88 @@ Don't forget to deduct 1 from the shoot delay each update loop, or you'll only b
 
 ## Bullet Collisions
 
+Next, we'll need to compare the positions of the bullets with the asteroids to determine if they're colliding. Inside the `updateBullets` function, while we're looping through the bullets, add a check against the asteroids to see if the bullet collides.
+
+    ...
+    wrapAround(bullet);
+    bullet.lifespan--;
+
+    // check each asteroid against this bullet
+    for (let j = 0; j < asteroids.length; j++) {
+        let asteroid = asteroids[j];
+        if (doesCollide(bullet, asteroid)) {
+            hitAsteroid(bullet, asteroid);
+            break;
+        }
+    }
+    ...
+
+Create the `hitAsteroid(bullet, asteroid)` function and we can destroy both the bullet and asteroid when they collide.
+
+    function hitAsteroid(bullet, asteroid) {
+        bullet.lifespan = 0;
+        let asteroidIndex = asteroids.indexOf(asteroid);
+        asteroids.splice(asteroidIndex, 1);
+    }
+
 ## Asteroid Splitting
+
+A single bullet destroying each asteroid is pretty boring, so let's make each asteroid instead spawn two more smaller asteroids. Before we do that we'll need to refactor some of the code to make the asteroid construction easier to reuse without having to copy-and-paste. 
+
+In the `initAsteroid` function, pull out the asteroid-creating into a separate function, called `addAsteroid`. Replace the lines that built and added the asteroid to the asteroids array with a call to the refactored function. Notice how we didn't actually change anything here; a refactor is a code change that alters the structure, but does not alter the functionality of the code.
+
+    function initAsteroids() {
+        asteroids = [];
+        for (let i = 0; i < 2; i++) {
+            let position = getRandomPositionOnScreen();
+            let velocity = { x: rand(-1, 2), y: rand(-1, 2) };
+            let size = { width: 200, height: 200 };
+            addAsteroid(position, velocity, size); // <-- this is now a function
+        }
+    }
+
+    function addAsteroid(position, velocity, size) { // but this is still doing the same thing
+        let asteroid = {};
+        asteroid.x = position.x;
+        asteroid.y = position.y;
+        asteroid.width = size.width;
+        asteroid.height = size.height;
+        asteroid.velocity = {};
+        asteroid.velocity.x = velocity.x;
+        asteroid.velocity.y = velocity.y;
+        asteroids.push(asteroid);
+    }
+
+With the ability to add asteroids easily reusable, we should add a few lines to the end of the `hitAsteroid` function. Let's create two new asteroids that are half the size of the original one, and add in a little bit of velocity randomness. We still want the new asteroids moving in the same general direction as the original one, so we'll inherit some of it's velocity.
+
+        ...
+        asteroids.splice(asteroidIndex, 1);
+
+        // this size object is going to be half the size of the asteroid this bullet is colliding with
+        let newSize = { width: asteroid.width / 2, height: asteroid.height / 2 };
+
+        let velocityVariation = {};
+
+        // a slightly random velocity, based on the parent asteroid
+        velocityVariation.x = asteroid.velocity.x + rand(-1, 2);
+        velocityVariation.y = asteroid.velocity.y + rand(-1, 2);
+        addAsteroid(asteroid, velocityVariation, newSize);
+
+        // a slightly different random velocity, so they drift apart
+        velocityVariation.x = asteroid.velocity.x + rand(-1, 2);
+        velocityVariation.y = asteroid.velocity.y + rand(-1, 2);
+        addAsteroid(asteroid, velocityVariation, newSize);
+    }
+
+At this point, you've got a decent game. You can fly around and shoot asteroids until they're teeny tiny impossible-to-hit specks that insta-kill you... yea we need to put a limit on how small they're allowed to get before they're just destroyed.
+
+We can use an early return conditional to check if the size of the asteroid is too small, and just not create the two new ones. Above the creation of the two new asteroids, put in a check on the current asteroid's size, and early return if it's below a certain threshold.
+
+    if (asteroid.width <= 25) {
+        return;
+    }
+
+Now we can play, and shoot all the asteroids until there are none left!
 
 ## Scoring and UI
 
