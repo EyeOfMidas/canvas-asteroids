@@ -412,6 +412,9 @@
         }
 
         function hitAsteroid(bullet, asteroid) {
+            bullet.lifespan = 0;
+            let asteroidIndex = asteroids.indexOf(asteroid);
+            asteroids.splice(asteroidIndex, 1);
         }
 
         function drawBullets(context) {
