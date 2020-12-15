@@ -396,10 +396,22 @@
 
                 // bullets age one each update loop
                 bullet.lifespan--;
+
+                // check each asteroid against this bullet
+                for (let j = 0; j < asteroids.length; j++) {
+                    let asteroid = asteroids[j];
+                    if (doesCollide(bullet, asteroid)) {
+                        hitAsteroid(bullet, asteroid);
+                        break;
+                    }
+                }
             }
 
             // this returns an array of only bullets with valid lifespan values
             bullets = bullets.filter(bullet => bullet.lifespan > 0);
+        }
+
+        function hitAsteroid(bullet, asteroid) {
         }
 
         function drawBullets(context) {
