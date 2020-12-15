@@ -305,6 +305,12 @@
 
         function hitShip(asteroid) {
             ship.life--;
+
+            if (ship.life <= 0) {
+                alert(`You lose! Score: ${ship.score}`);
+                init();
+                return;
+            }
             // move to a new random location (hopefully not somewhere an asteroid already is)
             ship.x = rand(0, canvas.width);
             ship.y = rand(0, canvas.height);
@@ -424,6 +430,10 @@
             ship.score += asteroid.width * 10;
 
             if (asteroid.width <= 25) {
+                if (asteroids.length == 0) {
+                    alert(`You win! Score: ${ship.score}`);
+                    init();
+                }
                 return;
             }
 
