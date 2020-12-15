@@ -524,4 +524,31 @@ Now we can play, and shoot all the asteroids until there are none left!
 
 ## Scoring and UI
 
+If you've played your game for a little while, you realize there's some things missing. You can die any number of times with no real penalty, and once all the asteroids are gone, it's pretty empty and pointless. So let's add some arbitrary numbers to influence your emotions! Add a new function called `drawUI(context)` and add it at the end of our `draw` function.
+
+Since UI always goes over top of anything else on the screen, it has to be drawn last.
+
+    function drawUI(context) {
+        context.font = "30px Arial";
+        context.textAlign = "left";
+        context.fillText(`Lives: ${ship.life}`, 10, 50);
+        context.textAlign = "right";
+        context.fillText(`Score: ${ship.score}`, canvas.width - 10, 50);
+    }
+
+Since we've kept game data, update logic and drawing logic separate, it's really easy to ask the appropriate objects about their values and just draw them on the screen. But we're not actually adding points, or subtracting lives. So let's find some appropriate places to adjust those.
+
+In the `hitShip` function seems to be a pretty reasonable place to subtract a life; at the top of that function just add
+
+    ship.life--;
+
+and watch it count down as you crash over and over. Similarly, adding to your score makes the most sense when a bullet hits an asteroid, so in the `hitAsteroid` function, add
+
+    ship.score += asteroid.width * 10;
+
+and watch your score skyrocket as you blast those space rocks.
+
+
+
+
 ## Game Over
