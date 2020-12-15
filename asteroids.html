@@ -304,6 +304,7 @@
         }
 
         function hitShip(asteroid) {
+            ship.life--;
             // move to a new random location (hopefully not somewhere an asteroid already is)
             ship.x = rand(0, canvas.width);
             ship.y = rand(0, canvas.height);
@@ -419,6 +420,8 @@
             bullet.lifespan = 0;
             let asteroidIndex = asteroids.indexOf(asteroid);
             asteroids.splice(asteroidIndex, 1);
+
+            ship.score += asteroid.width * 10;
 
             if (asteroid.width <= 25) {
                 return;
