@@ -420,6 +420,10 @@
             let asteroidIndex = asteroids.indexOf(asteroid);
             asteroids.splice(asteroidIndex, 1);
 
+            if (asteroid.width <= 25) {
+                return;
+            }
+
             // this size object is going to be half the size of the asteroid this bullet is colliding with
             let newSize = { width: asteroid.width / 2, height: asteroid.height / 2 };
 
